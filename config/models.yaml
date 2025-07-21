@@ -1,0 +1,199 @@
+# Configurações de modelos disponíveis
+
+# Modelos YOLO oficiais (serão baixados automaticamente)
+official_models:
+  # YOLOv11 - Modelos mais recentes
+  yolo11n:
+    path: "yolo11n.pt"
+    description: "YOLOv11 Nano - Mais rápido, menor precisão"
+    size: "~6MB"
+    speed: "Muito Alta"
+    accuracy: "Baixa"
+
+  yolo11s:
+    path: "yolo11s.pt"
+    description: "YOLOv11 Small - Balanceado para dispositivos móveis"
+    size: "~22MB"
+    speed: "Alta"
+    accuracy: "Média"
+
+  yolo11m:
+    path: "yolo11m.pt"
+    description: "YOLOv11 Medium - Balanceado geral"
+    size: "~50MB"
+    speed: "Média"
+    accuracy: "Alta"
+
+  yolo11l:
+    path: "yolo11l.pt"
+    description: "YOLOv11 Large - Alta precisão"
+    size: "~87MB"
+    speed: "Baixa"
+    accuracy: "Muito Alta"
+
+  yolo11x:
+    path: "yolo11x.pt"
+    description: "YOLOv11 Extra Large - Máxima precisão"
+    size: "~140MB"
+    speed: "Muito Baixa"
+    accuracy: "Máxima"
+
+  # YOLOv8 - Modelos estáveis
+  yolov8n:
+    path: "yolov8n.pt"
+    description: "YOLOv8 Nano - Legado, muito rápido"
+    size: "~6MB"
+    speed: "Muito Alta"
+    accuracy: "Baixa"
+
+  yolov8s:
+    path: "yolov8s.pt"
+    description: "YOLOv8 Small - Legado, rápido"
+    size: "~22MB"
+    speed: "Alta"
+    accuracy: "Média"
+
+  yolov8m:
+    path: "yolov8m.pt"
+    description: "YOLOv8 Medium - Legado, balanceado"
+    size: "~50MB"
+    speed: "Média"
+    accuracy: "Alta"
+
+# Modelos de segmentação (para análises avançadas)
+segmentation_models:
+  yolo11n_seg:
+    path: "yolo11n-seg.pt"
+    description: "YOLOv11 Nano Segmentação"
+    task: "segment"
+
+  yolo11s_seg:
+    path: "yolo11s-seg.pt"
+    description: "YOLOv11 Small Segmentação"
+    task: "segment"
+
+# Configurações específicas por modelo
+model_configs:
+  # Configuração otimizada para dispositivos com pouca memória
+  lightweight:
+    model: "yolo11n.pt"
+    imgsz: 320
+    half: true
+    device: "cpu"
+    batch_size: 1
+    description: "Configuração para dispositivos com recursos limitados"
+
+  # Configuração balanceada (padrão)
+  balanced:
+    model: "yolo11m.pt"
+    imgsz: 640
+    half: false
+    device: "auto"
+    batch_size: 1
+    description: "Configuração balanceada entre velocidade e precisão"
+
+  # Configuração de alta precisão
+  high_accuracy:
+    model: "yolo11x.pt"
+    imgsz: 1280
+    half: false
+    device: "cuda"
+    batch_size: 1
+    description: "Configuração para máxima precisão (requer GPU potente)"
+
+  # Configuração para tempo real
+  realtime:
+    model: "yolo11n.pt"
+    imgsz: 416
+    half: true
+    device: "cuda"
+    batch_size: 1
+    description: "Otimizado para processamento em tempo real"
+
+# Parâmetros recomendados por cenário
+scenarios:
+  retail_monitoring:
+    model: "yolo11m.pt"
+    confidence: 0.3
+    iou_threshold: 0.5
+    classes: [0] # Apenas pessoas
+    imgsz: 640
+    description: "Monitoramento de varejo - contagem de pessoas"
+
+  security_surveillance:
+    model: "yolo11l.pt"
+    confidence: 0.25
+    iou_threshold: 0.4
+    classes: [0, 2, 3, 5, 7] # pessoa, carro, moto, ônibus, caminhão
+    imgsz: 800
+    description: "Vigilância de segurança - múltiplos objetos"
+
+  crowd_analysis:
+    model: "yolo11x.pt"
+    confidence: 0.2
+    iou_threshold: 0.3
+    classes: [0] # Apenas pessoas
+    imgsz: 1280
+    description: "Análise de multidões - alta densidade"
+
+  mobile_deployment:
+    model: "yolo11n.pt"
+    confidence: 0.4
+    iou_threshold: 0.6
+    classes: [0]
+    imgsz: 320
+    half: true
+    description: "Deployment móvel - recursos limitados"
+
+# Classes COCO (para referência)
+coco_classes:
+  0: "person"
+  1: "bicycle"
+  2: "car"
+  3: "motorcycle"
+  4: "airplane"
+  5: "bus"
+  6: "train"
+  7: "truck"
+  8: "boat"
+  9: "traffic light"
+  10: "fire hydrant"
+  11: "stop sign"
+  12: "parking meter"
+  13: "bench"
+  14: "bird"
+  15: "cat"
+  16: "dog"
+  17: "horse"
+  18: "sheep"
+  19: "cow"
+  # ... (adicionar mais conforme necessário)
+
+# Configurações de fine-tuning (para modelos customizados)
+custom_training:
+  base_model: "yolo11m.pt"
+  epochs: 100
+  batch_size: 16
+  learning_rate: 0.01
+  image_size: 640
+  augmentation: true
+  mosaic: 1.0
+  mixup: 0.1
+  data_yaml: "custom_dataset.yaml"
+
+# Benchmarks esperados (FPS aproximados)
+performance_benchmarks:
+  yolo11n:
+    cpu_fps: 30-50
+    gpu_1060_fps: 80-120
+    gpu_3080_fps: 200-300
+
+  yolo11m:
+    cpu_fps: 10-20
+    gpu_1060_fps: 40-60
+    gpu_3080_fps: 100-150
+
+  yolo11x:
+    cpu_fps: 3-8
+    gpu_1060_fps: 15-25
+    gpu_3080_fps: 50-80

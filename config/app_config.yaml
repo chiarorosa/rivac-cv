@@ -1,0 +1,116 @@
+# Configuração principal do sistema RIVAC-CV
+
+# Configurações de entrada de vídeo
+input:
+  default_source: "camera" # camera, file, rtsp, ou caminho específico
+  frame_skip: 1 # Processar a cada N frames (1 = todos os frames)
+  resize_width: 640 # Largura para redimensionamento (null = não redimensionar)
+  resize_height: null # Altura para redimensionamento (null = manter aspect ratio)
+
+# Configurações de detecção de objetos
+detection:
+  model: "yolo11n.pt" # Modelo YOLO a usar
+  confidence: 0.3 # Threshold de confiança (0.0 a 1.0)
+  iou_threshold: 0.5 # Threshold de IoU para NMS
+  classes: [0] # Classes a detectar (0 = pessoa, null = todas)
+  device: "auto" # Device: auto, cpu, cuda, mps
+  imgsz: 640 # Tamanho da imagem para inferência
+  half: false # Usar precisão half (FP16)
+  verbose: false # Logs verbosos do modelo
+
+# Configurações de tracking/rastreamento
+tracking:
+  enabled: true # Ativar tracking
+  tracker: "bytetrack.yaml" # Configuração do tracker
+  max_age: 30 # Frames para manter track perdido
+  min_hits: 3 # Hits mínimos para confirmar track
+  persist: true # Manter tracks entre frames
+
+# Configurações de ROI (Regiões de Interesse)
+roi:
+  enabled: true # Ativar sistema de ROI
+  interactive_setup: true # Configuração interativa via interface
+  save_regions: true # Salvar regiões definidas
+  default_regions: [] # Regiões padrão (lista de polígonos)
+
+# Configurações de contagem
+counting:
+  enabled: true # Ativar contagem
+  count_lines: [] # Linhas de contagem (entrada/saída)
+  min_track_length: 10 # Comprimento mínimo de track para contar
+  direction_sensitivity: 0.3 # Sensibilidade para detecção de direção
+
+# Configurações de saída e exportação
+output:
+  save_video: true # Salvar vídeo processado
+  save_data: true # Salvar dados de detecção
+  export_format: ["csv", "json"] # Formatos de exportação
+  output_dir: "data/exports" # Diretório de saída
+  fps: 30 # FPS do vídeo de saída
+  codec: "mp4v" # Codec para vídeo
+  include_annotations: true # Incluir anotações no vídeo
+
+# Configurações de banco de dados
+database:
+  type: "sqlite" # Tipo: sqlite, postgresql, mysql
+  path: "data/rivac_cv.db" # Caminho (para SQLite)
+  create_tables: true # Criar tabelas automaticamente
+  # Para outros bancos:
+  # host: "localhost"
+  # port: 5432
+  # user: "username"
+  # password: "password"
+  # database: "rivac_cv"
+
+# Configurações de logging
+logging:
+  level: "INFO" # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/rivac_cv.log" # Arquivo de log (null = apenas console)
+  max_file_size: "10MB" # Tamanho máximo do arquivo de log
+  backup_count: 5 # Número de backups de log
+
+# Configurações de visualização
+visualization:
+  show_bboxes: true # Mostrar bounding boxes
+  show_tracks: true # Mostrar linhas de track
+  show_ids: true # Mostrar IDs dos tracks
+  show_confidence: true # Mostrar confiança das detecções
+  show_fps: true # Mostrar FPS na tela
+  bbox_color: [0, 255, 0] # Cor das bounding boxes (BGR)
+  track_color: [255, 0, 0] # Cor das linhas de track (BGR)
+  text_color: [255, 255, 255] # Cor do texto (BGR)
+  line_thickness: 2 # Espessura das linhas
+  font_scale: 0.5 # Escala da fonte
+
+# Configurações de performance
+performance:
+  enable_gpu: true # Usar GPU se disponível
+  batch_processing: false # Processamento em lotes
+  batch_size: 4 # Tamanho do lote
+  num_workers: 2 # Número de workers para processamento
+  memory_limit: "2GB" # Limite de memória
+
+# Configurações da interface web (Streamlit)
+web_interface:
+  title: "RIVAC-CV - Monitoramento por Visão Computacional"
+  theme: "light" # light, dark
+  sidebar_collapsed: false # Sidebar colapsada por padrão
+  show_metrics: true # Mostrar métricas em tempo real
+  update_interval: 1.0 # Intervalo de atualização (segundos)
+  max_upload_size: "200MB" # Tamanho máximo de upload
+
+# Configurações de alertas
+alerts:
+  enabled: false # Ativar sistema de alertas
+  max_occupancy: 50 # Ocupação máxima por região
+  min_occupancy: 0 # Ocupação mínima por região
+  email_notifications: false # Notificações por email
+  webhook_url: null # URL para webhook de alertas
+
+# Configurações experimentais
+experimental:
+  enable_heatmap: false # Gerar heatmap de movimentação
+  save_trajectories: false # Salvar trajetórias completas
+  advanced_analytics: false # Análises avançadas (ML/estatísticas)
+  object_reid: false # Re-identificação de objetos
