@@ -1,0 +1,40 @@
+# Comandos UV para RIVAC-CV
+
+# Setup inicial
+uv sync --all-extras            # Instalar dependências
+
+# Execução
+uv run streamlit run streamlit_app.py         # Interface web
+uv run python main.py --source video.mp4      # CLI
+
+# Desenvolvimento
+uv add package-name             # Adicionar dependência
+uv remove package-name          # Remover dependência
+uv sync --upgrade               # Atualizar dependências
+
+# Testes
+uv run pytest                   # Executar testes
+uv run pytest --cov=src        # Testes com cobertura
+
+# Ambiente
+uv python list                  # Listar versões Python
+uv pip list                     # Listar pacotes instalados
+uv add --group dev pytest       # Adicionar dep de desenvolvimento
+uv remove numpy                 # Remover dependência
+uv sync --upgrade               # Atualizar dependências
+
+# Testes e qualidade de código
+uv run pytest                   # Executar testes
+uv run black src/               # Formatar código
+uv run ruff check src/          # Linting
+uv run mypy src/                # Type checking
+
+# Gestão de ambiente
+uv python list                  # Listar versões Python
+uv cache clean                  # Limpar cache
+uv tree                        # Árvore de dependências
+uv lock                        # Gerar/atualizar lock file
+
+# Build e distribuição
+uv build                       # Construir pacote
+uv publish                     # Publicar no PyPI
