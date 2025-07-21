@@ -1,11 +1,11 @@
 [project]
 name = "rivac-cv"
-version = "0.1.0"
+version = "1.0.0"
 description = "Sistema de Monitoramento por Visão Computacional para ambientes de varejo"
 readme = "README.md"
 requires-python = ">=3.8"
 authors = [
-    { name = "Equipe RIVAC", email = "dev@rivac-cv.com" }
+    { name = "UniSenac - Campus Pelotas", email = "pdrosa@senacrs.com.br" }
 ]
 license = { text = "MIT" }
 keywords = ["computer-vision", "object-detection", "tracking", "retail", "yolo", "opencv"]
