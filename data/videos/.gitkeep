@@ -1,0 +1,16 @@
+# Diretório para vídeos de teste
+
+Este diretório deve conter os vídeos para teste do sistema RIVAC-CV.
+
+## Estrutura recomendada:
+- `sample.mp4` - Vídeo de exemplo para testes
+- `test_*.mp4` - Vídeos específicos para diferentes cenários
+- `demo_*.mp4` - Vídeos para demonstrações
+
+## Formatos suportados:
+- MP4 (recomendado)
+- AVI
+- MOV
+- WEBM
+
+⚠️ **Nota**: Arquivos de vídeo grandes não são versionados no Git. Use Git LFS se necessário.
