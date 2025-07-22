@@ -374,18 +374,18 @@ class DetectionPipeline(LoggerMixin):
                     "session_id",
                     "timestamp",
                     "class_id",
-                    "class_name", 
+                    "class_name",
                     "confidence",
                     "x1",
-                    "y1", 
+                    "y1",
                     "x2",
-                    "y2"
+                    "y2",
                 ]
-                
+
                 with open(output_path, "w", newline="", encoding="utf-8") as csvfile:
                     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
                     writer.writeheader()
-                    
+
                     for detection in all_detections:
                         # Mapear dados da detecção para formato CSV
                         row = {
@@ -409,9 +409,9 @@ class DetectionPipeline(LoggerMixin):
                             "session_id": self.session_id,
                             "export_timestamp": datetime.now().isoformat(),
                             "total_frames": self.frame_count,
-                            "total_detections": len(all_detections)
+                            "total_detections": len(all_detections),
                         },
-                        "detections": all_detections
+                        "detections": all_detections,
                     }
                     json.dump(export_data, f, indent=2)
 

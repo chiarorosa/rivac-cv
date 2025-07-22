@@ -42,7 +42,9 @@ def main():
     # Controle de execução
     parser.add_argument("--no-display", action="store_true", help="Não mostrar vídeo durante processamento")
     parser.add_argument("--save-detections", action="store_true", help="Salvar detecções")
-    parser.add_argument("--export-format", default="csv", choices=["csv", "json"], help="Formato de exportação (csv ou json)")
+    parser.add_argument(
+        "--export-format", default="csv", choices=["csv", "json"], help="Formato de exportação (csv ou json)"
+    )
     parser.add_argument("--log-level", default="INFO", choices=["DEBUG", "INFO", "WARNING", "ERROR"])
 
     args = parser.parse_args()
