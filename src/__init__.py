@@ -8,7 +8,7 @@ __author__ = "RIVAC-CV Team"
 __description__ = "Sistema modular de visão computacional para monitoramento de varejo"
 
 from .pipeline import DetectionPipeline
-from .utils.config import load_config
+from .utils.config import get_config, load_config
 from .utils.logger import get_logger
 
-__all__ = ["DetectionPipeline", "load_config", "get_logger"]
+__all__ = ["DetectionPipeline", "load_config", "get_config", "get_logger"]

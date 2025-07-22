@@ -28,7 +28,7 @@ try:
     from src.deteccao.yolo_detector import YOLODetector
     from src.ingestao.video_source import VideoSource
     from src.pipeline import DetectionPipeline
-    from src.utils.config import load_config, save_config
+    from src.utils.config import load_config
     from src.utils.logger import get_logger
 except ImportError as e:
     st.error(f"Erro ao importar módulos do sistema: {e}")
