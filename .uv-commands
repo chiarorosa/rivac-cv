@@ -4,8 +4,9 @@
 uv sync --all-extras            # Instalar dependências
 
 # Execução
-uv run streamlit run streamlit_app.py         # Interface web
-uv run python main.py --source video.mp4      # CLI
+uv run streamlit run streamlit_app.py                           # Interface web
+uv run python main.py --input data/videos/sample_1.mp4         # CLI com vídeo sample
+uv run python main.py --input 0 --model data/models/yolo11n.pt # CLI com webcam
 
 # Desenvolvimento
 uv add package-name             # Adicionar dependência

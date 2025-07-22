@@ -118,7 +118,7 @@ Acesse `http://localhost:8501` no seu navegador.
 
 ```bash
 # Processar um vídeo
-uv run python main.py --source video.mp4 --model yolo11n.pt
+uv run python main.py --source video.mp4 --model data/models/yolo11n.pt
 
 # Usar tracking personalizado
 uv run python main.py --source camera --tracker bytetrack.yaml --roi-interactive
@@ -137,7 +137,7 @@ from src.deteccao.yolo_detector import YOLODetector
 # Configurar pipeline
 pipeline = DetectionPipeline(
     source=VideoSource("video.mp4"),
-    detector=YOLODetector("yolo11n.pt"),
+    detector=YOLODetector("data/models/yolo11n.pt"),
     tracker_config="bytetrack.yaml"
 )
 
@@ -175,7 +175,7 @@ input:
 
 # Configurações de detecção
 detection:
-  model: "yolo11n.pt"
+  model: "data/models/yolo11n.pt"
   confidence: 0.3
   iou_threshold: 0.5
   classes: [0] # Apenas pessoas (classe 0 no COCO)

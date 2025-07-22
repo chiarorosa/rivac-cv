@@ -136,10 +136,10 @@ def render_sidebar():
     st.sidebar.header("🔍 Detecção")
 
     model_options = {
-        "YOLOv11n (Rápido)": "yolo11n.pt",
-        "YOLOv11s (Balanceado)": "yolo11s.pt",
-        "YOLOv11m (Preciso)": "yolo11m.pt",
-        "YOLOv11l (Muito Preciso)": "yolo11l.pt",
+        "YOLOv11n (Rápido)": "data/models/yolo11n.pt",
+        "YOLOv11s (Balanceado)": "data/models/yolo11s.pt",
+        "YOLOv11m (Preciso)": "data/models/yolo11m.pt",
+        "YOLOv11l (Muito Preciso)": "data/models/yolo11l.pt",
     }
 
     selected_model = st.sidebar.selectbox("Modelo:", list(model_options.keys()))

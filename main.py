@@ -34,7 +34,7 @@ def main():
     parser.add_argument("--config", "-c", default="config/app_config.yaml", help="Arquivo de configuração")
 
     # Parâmetros de processamento
-    parser.add_argument("--model", "-m", default="yolo11n.pt", help="Modelo YOLO a utilizar")
+    parser.add_argument("--model", "-m", default="data/models/yolo11n.pt", help="Modelo YOLO a utilizar")
     parser.add_argument("--confidence", type=float, default=0.3, help="Threshold de confiança")
     parser.add_argument("--device", default="auto", help="Dispositivo (cpu, cuda, auto)")
     parser.add_argument("--max-frames", type=int, help="Número máximo de frames a processar")

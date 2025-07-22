@@ -9,7 +9,7 @@ input:
 
 # Configurações de detecção de objetos
 detection:
-  model: "yolo11n.pt" # Modelo YOLO a usar
+  model: "data/models/yolo11n.pt" # Modelo YOLO a usar
   confidence: 0.3 # Threshold de confiança (0.0 a 1.0)
   iou_threshold: 0.5 # Threshold de IoU para NMS
   classes: [0] # Classes a detectar (0 = pessoa, null = todas)

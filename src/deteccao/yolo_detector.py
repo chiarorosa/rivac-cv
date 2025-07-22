@@ -84,16 +84,18 @@ class YOLODetector(BaseDetector):
             True se carregou com sucesso
         """
         try:
-            self.logger.info(f"Carregando modelo YOLO: {self.model_path}")
+            # Resolver caminho do modelo
+            resolved_model_path = self._resolve_model_path(self.model_path)
+            self.logger.info(f"Carregando modelo YOLO: {resolved_model_path}")
 
             # Verificar se o arquivo existe (para modelos locais)
             if not self._is_official_model(self.model_path):
-                if not Path(self.model_path).exists():
-                    self.logger.error(f"Arquivo do modelo não encontrado: {self.model_path}")
+                if not Path(resolved_model_path).exists():
+                    self.logger.error(f"Arquivo do modelo não encontrado: {resolved_model_path}")
                     return False
 
             # Carregar modelo
-            self.model = YOLO(self.model_path)
+            self.model = YOLO(resolved_model_path)
 
             # Configurar device
             if hasattr(self.model, "to"):
@@ -116,6 +118,37 @@ class YOLODetector(BaseDetector):
             self.logger.error(f"Erro ao carregar modelo YOLO: {e}")
             self.is_loaded = False
             return False
+
+    def _resolve_model_path(self, model_path: str) -> str:
+        """
+        Resolve o caminho do modelo, direcionando modelos oficiais para data/models/.
+
+        Args:
+            model_path: Caminho do modelo fornecido
+
+        Returns:
+            Caminho resolvido do modelo
+        """
+        # Extrair apenas o nome do arquivo para verificação
+        model_name = Path(model_path).name
+        
+        # Se for modelo oficial, usar diretório data/models
+        if self._is_official_model(model_name):
+            models_dir = Path("data/models")
+            models_dir.mkdir(parents=True, exist_ok=True)
+            return str(models_dir / model_name)
+        
+        # Se for caminho absoluto, usar como está
+        if Path(model_path).is_absolute():
+            return model_path
+            
+        # Se for caminho relativo, tentar primeiro em data/models
+        models_path = Path("data/models") / model_path
+        if models_path.exists():
+            return str(models_path)
+            
+        # Caso contrário, usar caminho original
+        return model_path
 
     def _is_official_model(self, model_path: str) -> bool:
         """

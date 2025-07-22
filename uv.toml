@@ -1,41 +1,6 @@
-# Configuração global do UV
-# Este arquivo configura comportamentos padrão do UV para todos os projetos
+# Configuração UV para RIVAC-CV
 
 [pip]
-# Configurações padrão para instalação de pacotes
-link-mode = "symlink"         # Usar links simbólicos (Linux/Mac) ou hardlink (Windows)
-no-build-isolation = false    # Manter isolamento de build por padrão
-require-hashes = false        # Não exigir hashes por padrão (pode ser habilitado para segurança)
-verify-hashes = true          # Verificar hashes quando disponíveis
-strict = true                 # Modo estrito para detecção de problemas
-
-# Configurações de resolução
-universal = false             # Não usar resolução universal por padrão
-resolution = "highest"        # Usar sempre as versões mais altas compatíveis
-prerelease = "disallow"       # Não permitir pré-releases por padrão
-
-# Cache e performance
-cache-dir = ".uv-cache"       # Diretório de cache local
-compile-bytecode = true       # Compilar bytecode para melhor performance
-
-[cache]
-# Configurações de cache global
-global = true                 # Usar cache global entre projetos
-ttl = 604800                  # TTL de cache de 7 dias (em segundos)
-
-[index]
-# Configuração de índices padrão
-url = "https://pypi.org/simple/"  # Índice principal do PyPI
-trusted-hosts = []                # Hosts confiáveis para HTTP
-find-links = []                   # Links adicionais para busca
-
-# Configurações de Python
-[python]
-# Comportamento padrão para instalações Python
-downloads = "automatic"       # Download automático de versões Python quando necessário
-preference = "managed"        # Preferir instalações gerenciadas pelo UV
-
-[tool]
-# Configurações de ferramentas
-upgrade = false              # Não fazer upgrade automático de dependências
-reinstall = false           # Não reinstalar pacotes por padrão
+# Configurações básicas
+compile-bytecode = true
+prerelease = "disallow"
