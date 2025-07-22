@@ -68,6 +68,49 @@ st.markdown(
 )
 
 
+def get_available_videos():
+    """Retorna lista de vídeos disponíveis em data/videos/."""
+    videos_dir = Path("data/videos")
+    if not videos_dir.exists():
+        return []
+    
+    video_extensions = [".mp4", ".avi", ".mov", ".mkv", ".m4v", ".flv", ".wmv"]
+    available_videos = []
+    
+    for video_file in videos_dir.iterdir():
+        if video_file.is_file() and video_file.suffix.lower() in video_extensions:
+            # Obter informações do arquivo
+            file_size = video_file.stat().st_size / (1024 * 1024)  # MB
+            
+            # Tentar obter informações do vídeo usando OpenCV
+            video_info = {"duration": "N/A", "fps": "N/A", "resolution": "N/A"}
+            try:
+                cap = cv2.VideoCapture(str(video_file))
+                if cap.isOpened():
+                    fps = cap.get(cv2.CAP_PROP_FPS)
+                    frame_count = cap.get(cv2.CAP_PROP_FRAME_COUNT)
+                    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+                    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+                    
+                    if fps > 0:
+                        duration = frame_count / fps
+                        video_info["duration"] = f"{duration:.1f}s"
+                        video_info["fps"] = f"{fps:.1f}"
+                        video_info["resolution"] = f"{width}x{height}"
+                cap.release()
+            except:
+                pass  # Se não conseguir obter informações, usa valores padrão
+            
+            available_videos.append({
+                "name": video_file.name,
+                "path": str(video_file),
+                "size_mb": round(file_size, 1),
+                **video_info
+            })
+    
+    return sorted(available_videos, key=lambda x: x["name"])
+
+
 def initialize_session_state():
     """Inicializa estado da sessão."""
     if "pipeline" not in st.session_state:
@@ -113,12 +156,63 @@ def render_sidebar():
         source_path = camera_id
 
     elif source_type == "Arquivo de vídeo":
-        uploaded_file = st.sidebar.file_uploader("Escolha um arquivo de vídeo:", type=["mp4", "avi", "mov", "mkv"])
-        if uploaded_file:
-            # Salvar arquivo temporário
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as tmp_file:
-                tmp_file.write(uploaded_file.read())
-                source_path = tmp_file.name
+        # Obter vídeos disponíveis
+        available_videos = get_available_videos()
+        
+        if available_videos:
+            st.sidebar.subheader("📋 Vídeos Disponíveis")
+            
+            # Criar opções para selectbox
+            video_options = ["🆕 Fazer upload de novo arquivo..."]
+            for video in available_videos:
+                video_options.append(f"📽️ {video['name']} ({video['size_mb']} MB)")
+            
+            selected_option = st.sidebar.selectbox("Escolher vídeo:", video_options)
+            
+            if selected_option.startswith("📽️"):
+                # Usuário selecionou um vídeo existente
+                video_name = selected_option.split("📽️ ")[1].split(" (")[0]
+                selected_video = next(v for v in available_videos if v["name"] == video_name)
+                source_path = selected_video["path"]
+                
+                # Mostrar informações detalhadas do vídeo selecionado
+                st.sidebar.success(f"✅ Vídeo selecionado: {video_name}")
+                
+                # Criar um expander com informações detalhadas
+                with st.sidebar.expander("ℹ️ Informações do Vídeo"):
+                    st.write(f"**📁 Arquivo:** {selected_video['name']}")
+                    st.write(f"**📏 Tamanho:** {selected_video['size_mb']} MB")
+                    st.write(f"**⏱️ Duração:** {selected_video['duration']}")
+                    st.write(f"**🎬 FPS:** {selected_video['fps']}")
+                    st.write(f"**📺 Resolução:** {selected_video['resolution']}")
+                
+            else:
+                # Usuário quer fazer upload
+                uploaded_file = st.sidebar.file_uploader(
+                    "Fazer upload de arquivo:", 
+                    type=["mp4", "avi", "mov", "mkv"],
+                    help="Formatos suportados: MP4, AVI, MOV, MKV"
+                )
+                if uploaded_file:
+                    # Salvar arquivo temporário
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as tmp_file:
+                        tmp_file.write(uploaded_file.read())
+                        source_path = tmp_file.name
+                    st.sidebar.success(f"✅ Upload concluído: {uploaded_file.name}")
+        else:
+            # Nenhum vídeo disponível, apenas upload
+            st.sidebar.info("ℹ️ Nenhum vídeo encontrado em data/videos/")
+            uploaded_file = st.sidebar.file_uploader(
+                "Fazer upload de arquivo:", 
+                type=["mp4", "avi", "mov", "mkv"],
+                help="Formatos suportados: MP4, AVI, MOV, MKV"
+            )
+            if uploaded_file:
+                # Salvar arquivo temporário
+                with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as tmp_file:
+                    tmp_file.write(uploaded_file.read())
+                    source_path = tmp_file.name
+                st.sidebar.success(f"✅ Upload concluído: {uploaded_file.name}")
 
     elif source_type == "URL/Stream":
         source_path = st.sidebar.text_input("URL do stream:")
