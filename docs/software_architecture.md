@@ -12,33 +12,33 @@ Estabelecer uma arquitetura de software modular, extensível e didática para o 
 
 O sistema está organizado em módulos independentes, favorecendo testes, manutenção e integração incremental. O pipeline principal abrange:
 
-* Ingestão de vídeo
+- Ingestão de vídeo
 
-* Detecção de pessoas (com possibilidade de múltiplos modelos)
+- Detecção de pessoas (com possibilidade de múltiplos modelos)
 
-* Tracking (rastreamento entre frames)
+- Tracking (rastreamento entre frames)
 
-* Gerenciamento de ROI (regiões de interesse)
+- Gerenciamento de ROI (regiões de interesse)
 
-* Contagem e extração de métricas
+- Contagem e extração de métricas
 
-* Visualização e exportação de resultados
+- Visualização e exportação de resultados
 
-* Persistência e logging
+- Persistência e logging
 
 ---
 
 ### **3\. Diagrama Modular (Texto)**
 
 \[Ingestão de Vídeo\]  
-        ↓  
+ ↓  
 \[Pipeline de Processamento\]  
-   ├─\> \[Detecção de Pessoas (hooks para modelos)\]  
-   ├─\> \[Tracking (opcional/expansível)\]  
-   ├─\> \[ROI & Contagem\]  
-        ↓  
+ ├─\> \[Detecção de Pessoas (hooks para modelos)\]  
+ ├─\> \[Tracking (opcional/expansível)\]  
+ ├─\> \[ROI & Contagem\]  
+ ↓  
 \[Exportação & Visualização\]  
-        ↓  
+ ↓  
 \[Persistência de Dados & Logs\]
 
 ---
@@ -47,81 +47,81 @@ O sistema está organizado em módulos independentes, favorecendo testes, manute
 
 #### **4.1 Ingestão de Dados de Vídeo**
 
-* Suporta arquivos locais, câmeras IP/USB, RTSP/streams.
+- Suporta arquivos locais, câmeras IP/USB, RTSP/streams.
 
-* Interface única para seleção da fonte.
+- Interface única para seleção da fonte.
 
-* Encapsula dependências de leitura (OpenCV, etc).
+- Encapsula dependências de leitura (OpenCV, etc).
 
 #### **4.2 Detecção de Pessoas (Módulo Extensível)**
 
-* **Interface Abstrata:** Define métodos essenciais (`load_model`, `predict`).
+- **Interface Abstrata:** Define métodos essenciais (`load_model`, `predict`).
 
-* **Implementações Específicas:** Cada modelo (YOLOv6, YOLOv8, outros futuros) implementa a interface.
+- **Implementações Específicas:** Cada modelo (YOLOv6, YOLOv8, outros futuros) implementa a interface.
 
-* **Configuração Dinâmica:** Usuário define o modelo a usar em um arquivo `config.yaml` ou similar.
+- **Configuração Dinâmica:** Usuário define o modelo a usar em um arquivo `config.yaml` ou similar.
 
-* **Plug & Play:** Facilita experimentação e substituição de modelos sem afetar o pipeline principal.
+- **Plug & Play:** Facilita experimentação e substituição de modelos sem afetar o pipeline principal.
 
 #### **4.3 Tracking (Rastreamento)**
 
-* Módulo independente, plugável no pipeline.
+- Módulo independente, plugável no pipeline.
 
-* Possíveis técnicas: DeepSORT, filtros de Kalman, outros (OpenCV multi-object tracking).
+- Possíveis técnicas: DeepSORT, filtros de Kalman, outros (OpenCV multi-object tracking).
 
-* Inicialmente opcional, mas preparado para integração incremental.
+- Inicialmente opcional, mas preparado para integração incremental.
 
 #### **4.4 ROI e Contagem**
 
-* Permite definição manual/automática de regiões de interesse nos frames.
+- Permite definição manual/automática de regiões de interesse nos frames.
 
-* Algoritmo de contagem vinculado à ROI.
+- Algoritmo de contagem vinculado à ROI.
 
-* Suporte para múltiplas ROIs, contagem total e por região.
+- Suporte para múltiplas ROIs, contagem total e por região.
 
-* Interface gráfica básica para seleção/edição de ROIs.
+- Interface gráfica básica para seleção/edição de ROIs.
 
 #### **4.5 Exportação e Visualização**
 
-* Visualização ao vivo dos resultados: boxes, ROIs, contagem, overlays.
+- Visualização ao vivo dos resultados: boxes, ROIs, contagem, overlays.
 
-* Exportação de métricas em CSV, JSON, ou outros formatos (compatível BI).
+- Exportação de métricas em CSV, JSON, ou outros formatos (compatível BI).
 
-* Geração de relatórios de eventos, logs de detecção, estatísticas.
+- Geração de relatórios de eventos, logs de detecção, estatísticas.
 
 #### **4.6 Persistência Local**
 
-* Logs, métricas e parâmetros salvos em banco leve (SQLite) ou arquivos simples (CSV, JSON).
+- Logs, métricas e parâmetros salvos em banco leve (SQLite) ou arquivos simples (CSV, JSON).
 
-* Histórico de execuções, configurações experimentais, métricas para análise posterior.
+- Histórico de execuções, configurações experimentais, métricas para análise posterior.
 
 #### **4.7 Documentação e Testes**
 
-* README para cada módulo, explicando uso, dependências e exemplos.
+- README para cada módulo, explicando uso, dependências e exemplos.
 
-* Testes unitários para componentes-chave (ingestão, detecção, tracking).
+- Testes unitários para componentes-chave (ingestão, detecção, tracking).
 
-* Scripts de setup e ambiente reprodutível (`requirements.txt`, `Dockerfile`).
+- Scripts de setup e ambiente reprodutível (`requirements.txt`, `Dockerfile`).
 
 ---
 
 ### **5\. Estrutura de Diretórios Sugerida**
 
 /src/  
-  /ingestao/  
-  /deteccao/  
-    base\_detector.py  
-    yolov6\_detector.py  
-    yolov8\_detector.py  
-    ...  
-  /tracking/  
-  /roi/  
-  /visualizacao/  
-  /exportacao/  
-  /persistencia/  
-  /utils/  
-  /tests/  
-  /docs/  
+ /ingestao/  
+ /deteccao/  
+ base_detector.py  
+ yolov6_detector.py  
+ yolov8_detector.py  
+ ...  
+ /tracking/  
+ /roi/  
+ /visualizacao/  
+ /exportacao/  
+ /persistencia/  
+ /utils/  
+ /tests/  
+ /docs/  
 config.yaml  
 main.py  
 requirements.txt  
@@ -132,56 +132,30 @@ README.md
 
 ### **6\. Tecnologias Fundamentais**
 
-* **Linguagem:** Python 3.10+
+- **Linguagem:** Python 3.10+
 
-* **CV/ML:** PyTorch, OpenCV
+- **CV/ML:** PyTorch, OpenCV
 
-* **Interface:** Streamlit/Gradio para protótipos rápidos (ou CLI no início)
+- **Interface:** Streamlit/Gradio para protótipos rápidos (ou CLI no início)
 
-* **Persistência:** SQLite (via SQLAlchemy) ou CSV/JSON puro
+- **Persistência:** SQLite (via SQLAlchemy) ou CSV/JSON puro
 
-* **Exportação:** pandas, json, csv
+- **Exportação:** pandas, json, csv
 
-* **Testes:** pytest
+- **Testes:** pytest
 
-* **DevOps:** Docker, GitHub Actions
+- **DevOps:** Docker, GitHub Actions
 
-* **Documentação:** README, docstrings padrão Google/NumPy, preferencialmente com MkDocs ou Sphinx
+- **Documentação:** README, docstrings padrão Google/NumPy, preferencialmente com MkDocs ou Sphinx
 
 ---
 
 ### **7\. Padrões de Colaboração e Expansão**
 
-* Cada módulo deve ter README próprio, exemplos de entrada/saída, e instruções de execução.
+- Cada módulo deve ter README próprio, exemplos de entrada/saída, e instruções de execução.
 
-* Novo pesquisador pode criar uma branch e propor um novo detector plugando sua implementação à interface padrão.
+- Novo pesquisador pode criar uma branch e propor um novo detector plugando sua implementação à interface padrão.
 
-* As issues devem ser usadas para bugs, sugestões e planejamento incremental.
+- As issues devem ser usadas para bugs, sugestões e planejamento incremental.
 
-* O onboarding de novos membros é facilitado por scripts de setup automático (`requirements.txt`, `Dockerfile`) e documentação central.
-
----
-
-### **8\. Exemplos de Hooks para Detecção**
-
-**base\_detector.py:**
-
-class BaseDetector:  
-    def load\_model(self): raise NotImplementedError  
-    def predict(self, frame): raise NotImplementedError
-
-**yolov6\_detector.py:**
-
-from base\_detector import BaseDetector  
-class YOLOv6Detector(BaseDetector):  
-    def load\_model(self): ...  
-    def predict(self, frame): ...
-
-**No pipeline principal:**
-
-def get\_detector(config):  
-    if config\['model'\] \== 'yolov6':  
-        return YOLOv6Detector()  
-    elif config\['model'\] \== 'yolov8':  
-        return YOLOv8Detector()  
-    \# ...
+- O onboarding de novos membros é facilitado por scripts de setup automático e documentação central.
