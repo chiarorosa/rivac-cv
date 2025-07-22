@@ -73,14 +73,9 @@ uv sync --extra advanced-cv
 uv sync --all-extras
 ```
 
-### 4. Ativação do Ambiente
+### 4. Validação do Ambiente
 
 ```bash
-# Ativar ambiente virtual (opcional, uv run faz automaticamente)
-source .venv/bin/activate  # Linux/Mac
-# ou
-.venv\Scripts\activate     # Windows
-
 # Verificar instalação
 uv run python --version
 uv run pip list
@@ -117,7 +112,7 @@ uv lock
 uv run python main.py --input 0
 
 # Executar interface Streamlit
-uv run streamlit run streamlit_app.py
+uv run streamlit run streamlit_app.py --server.headless true --server.port 8501
 
 # Executar testes
 uv run pytest
@@ -214,7 +209,7 @@ uv run pytest
 uv sync
 
 # Executar aplicação
-uv run streamlit run streamlit_app.py
+uv run streamlit run streamlit_app.py --server.headless true --server.port 8501
 
 # Testes durante desenvolvimento
 uv run pytest tests/ -v
@@ -361,36 +356,12 @@ uv lock --verbose
 [project.scripts]
 rivac-cv = "main:main"
 rivac-streamlit = "streamlit_app:main"
-rivac-test = "pytest:main"
 ```
 
 ```bash
 # Executar scripts configurados
 uv run rivac-cv --input video.mp4
 uv run rivac-streamlit
-uv run rivac-test
-```
-
-### Workspaces (para projetos multi-pacote)
-
-```toml
-[tool.uv.workspace]
-members = [
-    "packages/core",
-    "packages/ui",
-    "packages/api"
-]
-```
-
-### Índices Personalizados
-
-```toml
-[[tool.uv.index]]
-name = "pytorch"
-url = "https://download.pytorch.org/whl/cpu"
-
-[tool.uv.sources]
-torch = { index = "pytorch" }
 ```
 
 ## 📚 Recursos Adicionais

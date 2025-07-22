@@ -54,19 +54,19 @@ rivac-cv/
 - **CustomDetector**: Suporte para modelos personalizados
 - **DetectionFilter**: Filtragem por confiança e classes
 
-#### 🔍 Tracking (`src/tracking/`)
+#### 🔍 Tracking (`src/tracking/`) - ToDo
 
 - **ByteTracker**: Tracking rápido e eficiente
 - **BoTSORTTracker**: Tracking com re-identificação
 - **TrackManager**: Gerenciamento de trajetórias
 
-#### 📍 ROI (`src/roi/`)
+#### 📍 ROI (`src/roi/`) - ToDo
 
 - **ROIManager**: Definição e gerenciamento de regiões
 - **InteractiveROI**: Interface para desenho de ROIs
 - **GeometryUtils**: Utilitários geométricos
 
-#### 📊 Contagem (`src/contagem/`)
+#### 📊 Contagem (`src/contagem/`) - ToDo
 
 - **LineCounter**: Contagem por linha de passagem
 - **AreaCounter**: Contagem por permanência em área
@@ -97,19 +97,12 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 uv sync --all-extras
 ```
 
-### Instalação com Docker
-
-```bash
-docker build -f docker/Dockerfile -t rivac-cv .
-docker run -p 8501:8501 rivac-cv
-```
-
 ## 🎯 Uso
 
 ### Interface Web (Streamlit)
 
 ```bash
-uv run streamlit run streamlit_app.py
+uv run streamlit run streamlit_app.py --server.headless true --server.port 8501
 ```
 
 Acesse `http://localhost:8501` no seu navegador.
