@@ -7,6 +7,7 @@ Este diretório contém toda a documentação técnica do projeto RIVAC-CV.
 ### 🏗️ Arquitetura e Design
 
 - **[Arquitetura de Software](software_architecture.md)** - Documentação completa da arquitetura do sistema
+- **[Comparação de Pipelines](pipeline_comparison.md)** - Diferenças entre pipeline.py e pipeline_v2.py
 
 ### 📊 Análise de Dados
 
@@ -23,7 +24,8 @@ Este diretório contém toda a documentação técnica do projeto RIVAC-CV.
 
 1. **Primeiro acesso**: Comece com o [README principal](../README.md)
 2. **Entender a arquitetura**: Leia [Arquitetura de Software](software_architecture.md)
-3. **Setup do ambiente**: Use o [Guia do UV](uv_guide.md)
+3. **Escolher pipeline**: Consulte [Comparação de Pipelines](pipeline_comparison.md)
+4. **Setup do ambiente**: Use o [Guia do UV](uv_guide.md)
 
 ### Para Analistas de Dados
 
