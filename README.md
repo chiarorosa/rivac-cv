@@ -37,6 +37,7 @@ rivac-cv/
 ├── docs/                  # Documentação técnica
 ├── streamlit_app.py       # Interface web principal
 ├── main.py                # CLI principal
+├── .uv-commands           # Comandos UV para RIVAC-CV
 └── pyproject.toml         # Configuração de dependências
 ```
 
@@ -45,28 +46,28 @@ rivac-cv/
 #### 🎥 Ingestão (`src/ingestao/`)
 
 - **VideoSource**: Captura de vídeo de arquivos, câmeras ou streams RTSP
-- **FrameProcessor**: Pré-processamento e redimensionamento de frames
-- **StreamManager**: Gerenciamento de múltiplas fontes simultâneas
+- **FrameProcessor** _ToDo_: Pré-processamento e redimensionamento de frames
+- **StreamManager** _ToDo_: Gerenciamento de múltiplas fontes simultâneas
 
 #### 🎯 Detecção (`src/deteccao/`)
 
 - **YOLODetector**: Interface para modelos YOLO (v8, v11)
-- **CustomDetector**: Suporte para modelos personalizados
-- **DetectionFilter**: Filtragem por confiança e classes
+- **CustomDetector** _ToDo_: Suporte para modelos personalizados
+- **DetectionFilter** _ToDo_: Filtragem por confiança e classes
 
-#### 🔍 Tracking (`src/tracking/`) - ToDo
+#### 🔍 Tracking (`src/tracking/`) _ToDo_
 
 - **ByteTracker**: Tracking rápido e eficiente
 - **BoTSORTTracker**: Tracking com re-identificação
 - **TrackManager**: Gerenciamento de trajetórias
 
-#### 📍 ROI (`src/roi/`) - ToDo
+#### 📍 ROI (`src/roi/`) _ToDo_
 
 - **ROIManager**: Definição e gerenciamento de regiões
 - **InteractiveROI**: Interface para desenho de ROIs
 - **GeometryUtils**: Utilitários geométricos
 
-#### 📊 Contagem (`src/contagem/`) - ToDo
+#### 📊 Contagem (`src/contagem/`) _ToDo_
 
 - **LineCounter**: Contagem por linha de passagem
 - **AreaCounter**: Contagem por permanência em área
