@@ -41,7 +41,8 @@ def main():
 
     # Controle de execução
     parser.add_argument("--no-display", action="store_true", help="Não mostrar vídeo durante processamento")
-    parser.add_argument("--save-detections", action="store_true", help="Salvar detecções em CSV")
+    parser.add_argument("--save-detections", action="store_true", help="Salvar detecções")
+    parser.add_argument("--export-format", default="csv", choices=["csv", "json"], help="Formato de exportação (csv ou json)")
     parser.add_argument("--log-level", default="INFO", choices=["DEBUG", "INFO", "WARNING", "ERROR"])
 
     args = parser.parse_args()
@@ -94,8 +95,9 @@ def main():
 
         # Salvar detecções se solicitado
         if args.save_detections:
-            export_path = f"exports/detections_{pipeline.session_id}.csv"
-            if pipeline.export_results(export_path, format="csv"):
+            ext = "csv" if args.export_format == "csv" else "json"
+            export_path = f"data/exports/detections_{pipeline.session_id}.{ext}"
+            if pipeline.export_results(export_path, format=args.export_format):
                 logger.info(f"Detecções salvas em: {export_path}")
 
         logger.info("Processamento concluído com sucesso")

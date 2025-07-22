@@ -117,14 +117,20 @@ Acesse `http://localhost:8501` no seu navegador.
 ### Linha de Comando
 
 ```bash
-# Processar um vídeo
-uv run python main.py --source video.mp4 --model data/models/yolo11n.pt
+# Processamento básico
+uv run python main.py --input data/videos/sample_1.mp4
 
-# Usar tracking personalizado
-uv run python main.py --source camera --tracker bytetrack.yaml --roi-interactive
+# Com exportação de detecções (CSV)
+uv run python main.py --input data/videos/sample_1.mp4 --save-detections
 
-# Processar com configuração customizada
-uv run python main.py --config config/custom_config.yaml
+# Com exportação JSON
+uv run python main.py --input data/videos/sample_1.mp4 --save-detections --export-format json
+
+# Webcam em tempo real
+uv run python main.py --input 0
+
+# Com modelo específico e confiança personalizada
+uv run python main.py --input data/videos/sample_1.mp4 --model data/models/yolo11m.pt --confidence 0.5
 ```
 
 ### API Python

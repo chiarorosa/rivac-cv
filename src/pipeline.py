@@ -3,7 +3,11 @@ Pipeline principal de detecção e tracking
 Coordena todos os módulos do sistema
 """
 
+import csv
+import json
 import time
+import uuid
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
@@ -45,6 +49,9 @@ class DetectionPipeline(LoggerMixin):
         self.source = source
         self.detector = detector
 
+        # Identificador único da sessão
+        self.session_id = str(uuid.uuid4())[:8]
+
         # Estado do pipeline
         self.is_running = False
         self.frame_count = 0
@@ -60,7 +67,7 @@ class DetectionPipeline(LoggerMixin):
         self.fps_start_time = time.time()
         self.current_fps = 0.0
 
-        self.logger.info("Pipeline de detecção inicializado")
+        self.logger.info(f"Pipeline de detecção inicializado - Sessão: {self.session_id}")
 
     def setup_source(self, source_config: str, **kwargs) -> bool:
         """
@@ -341,10 +348,6 @@ class DetectionPipeline(LoggerMixin):
             True se exportou com sucesso
         """
         try:
-            import json
-
-            import pandas as pd
-
             # Preparar dados
             all_detections = []
 
@@ -352,6 +355,8 @@ class DetectionPipeline(LoggerMixin):
                 for detection in detections:
                     detection_data = detection.to_dict()
                     detection_data["frame_number"] = frame_idx
+                    detection_data["session_id"] = self.session_id
+                    detection_data["timestamp"] = datetime.now().isoformat()
                     all_detections.append(detection_data)
 
             if not all_detections:
@@ -363,12 +368,52 @@ class DetectionPipeline(LoggerMixin):
 
             # Exportar baseado no formato
             if format.lower() == "csv":
-                df = pd.DataFrame(all_detections)
-                df.to_csv(output_path, index=False)
+                # Exportar CSV sem pandas
+                fieldnames = [
+                    "frame_number",
+                    "session_id",
+                    "timestamp",
+                    "class_id",
+                    "class_name", 
+                    "confidence",
+                    "x1",
+                    "y1", 
+                    "x2",
+                    "y2"
+                ]
+                
+                with open(output_path, "w", newline="", encoding="utf-8") as csvfile:
+                    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                    writer.writeheader()
+                    
+                    for detection in all_detections:
+                        # Mapear dados da detecção para formato CSV
+                        row = {
+                            "frame_number": detection["frame_number"],
+                            "session_id": detection["session_id"],
+                            "timestamp": detection["timestamp"],
+                            "class_id": detection.get("class_id", ""),
+                            "class_name": detection.get("class_name", ""),
+                            "confidence": detection.get("confidence", ""),
+                            "x1": detection.get("bbox", [0, 0, 0, 0])[0],
+                            "y1": detection.get("bbox", [0, 0, 0, 0])[1],
+                            "x2": detection.get("bbox", [0, 0, 0, 0])[2],
+                            "y2": detection.get("bbox", [0, 0, 0, 0])[3],
+                        }
+                        writer.writerow(row)
 
             elif format.lower() == "json":
                 with open(output_path, "w", encoding="utf-8") as f:
-                    json.dump(all_detections, f, indent=2)
+                    export_data = {
+                        "session_info": {
+                            "session_id": self.session_id,
+                            "export_timestamp": datetime.now().isoformat(),
+                            "total_frames": self.frame_count,
+                            "total_detections": len(all_detections)
+                        },
+                        "detections": all_detections
+                    }
+                    json.dump(export_data, f, indent=2)
 
             else:
                 self.logger.error(f"Formato não suportado: {format}")

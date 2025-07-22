@@ -5,6 +5,7 @@ Este diretório contém os modelos YOLO utilizados pelo sistema RIVAC-CV.
 ## Modelos Disponíveis
 
 ### YOLOv11 (Recomendado)
+
 - `yolo11n.pt` - Nano (mais rápido)
 - `yolo11s.pt` - Small (balanceado)
 - `yolo11m.pt` - Medium (preciso)
@@ -12,8 +13,9 @@ Este diretório contém os modelos YOLO utilizados pelo sistema RIVAC-CV.
 - `yolo11x.pt` - Extra Large (máxima precisão)
 
 ### YOLOv8 (Compatível)
+
 - `yolov8n.pt` - Nano
-- `yolov8s.pt` - Small  
+- `yolov8s.pt` - Small
 - `yolov8m.pt` - Medium
 - `yolov8l.pt` - Large
 - `yolov8x.pt` - Extra Large
@@ -51,7 +53,7 @@ Todos os modelos oficiais usam o dataset COCO com 80 classes:
 
 - 0: person (pessoa) - **Classe principal para retail**
 - 1: bicycle
-- 2: car  
+- 2: car
 - 3: motorcycle
 - ...
 
@@ -59,13 +61,13 @@ Para contagem de pessoas em retail, o sistema foca na classe 0 (person).
 
 ## Performance
 
-| Modelo | Tamanho | Velocidade | Precisão | Uso Recomendado |
-|--------|---------|------------|----------|-----------------|
-| YOLOv11n | 5.3MB | ⚡⚡⚡⚡⚡ | ⭐⭐⭐ | Tempo real, webcam |
-| YOLOv11s | 19.5MB | ⚡⚡⚡⚡ | ⭐⭐⭐⭐ | Balanceado |
-| YOLOv11m | 43.2MB | ⚡⚡⚡ | ⭐⭐⭐⭐⭐ | Alta precisão |
-| YOLOv11l | 86.9MB | ⚡⚡ | ⭐⭐⭐⭐⭐ | Análise offline |
-| YOLOv11x | 194.7MB | ⚡ | ⭐⭐⭐⭐⭐ | Máxima precisão |
+| Modelo   | Tamanho | Velocidade | Precisão   | Uso Recomendado    |
+| -------- | ------- | ---------- | ---------- | ------------------ |
+| YOLOv11n | 5.3MB   | ⚡⚡⚡⚡⚡ | ⭐⭐⭐     | Tempo real, webcam |
+| YOLOv11s | 19.5MB  | ⚡⚡⚡⚡   | ⭐⭐⭐⭐   | Balanceado         |
+| YOLOv11m | 43.2MB  | ⚡⚡⚡     | ⭐⭐⭐⭐⭐ | Alta precisão      |
+| YOLOv11l | 86.9MB  | ⚡⚡       | ⭐⭐⭐⭐⭐ | Análise offline    |
+| YOLOv11x | 194.7MB | ⚡         | ⭐⭐⭐⭐⭐ | Máxima precisão    |
 
 ## Exemplo de Uso
 

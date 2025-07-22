@@ -131,22 +131,22 @@ class YOLODetector(BaseDetector):
         """
         # Extrair apenas o nome do arquivo para verificação
         model_name = Path(model_path).name
-        
+
         # Se for modelo oficial, usar diretório data/models
         if self._is_official_model(model_name):
             models_dir = Path("data/models")
             models_dir.mkdir(parents=True, exist_ok=True)
             return str(models_dir / model_name)
-        
+
         # Se for caminho absoluto, usar como está
         if Path(model_path).is_absolute():
             return model_path
-            
+
         # Se for caminho relativo, tentar primeiro em data/models
         models_path = Path("data/models") / model_path
         if models_path.exists():
             return str(models_path)
-            
+
         # Caso contrário, usar caminho original
         return model_path
 

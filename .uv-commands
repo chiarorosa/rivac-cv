@@ -8,6 +8,10 @@ uv run streamlit run streamlit_app.py                           # Interface web
 uv run python main.py --input data/videos/sample_1.mp4         # CLI com vídeo sample
 uv run python main.py --input 0 --model data/models/yolo11n.pt # CLI com webcam
 
+# Exportação de detecções
+uv run python main.py --input data/videos/sample_1.mp4 --save-detections                    # CSV
+uv run python main.py --input data/videos/sample_1.mp4 --save-detections --export-format json # JSON
+
 # Desenvolvimento
 uv add package-name             # Adicionar dependência
 uv remove package-name          # Remover dependência
