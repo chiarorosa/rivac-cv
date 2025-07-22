@@ -127,6 +127,10 @@ def initialize_session_state():
         st.session_state.frame_queue = queue.Queue(maxsize=10)
     if "results_queue" not in st.session_state:
         st.session_state.results_queue = queue.Queue(maxsize=100)
+    if "video_finished" not in st.session_state:
+        st.session_state.video_finished = False
+    if "total_video_frames" not in st.session_state:
+        st.session_state.total_video_frames = 0
 
 
 def render_header():
@@ -171,9 +175,9 @@ def render_sidebar():
 
             selected_option = st.sidebar.selectbox("Escolher vídeo:", video_options)
 
-            if selected_option.startswith("+"):
+            if selected_option != "Fazer upload de novo arquivo...":
                 # Usuário selecionou um vídeo existente
-                video_name = selected_option.split("+ ")[1].split(" (")[0]
+                video_name = selected_option.split(" (")[0]
                 selected_video = next(v for v in available_videos if v["name"] == video_name)
                 source_path = selected_video["path"]
 
@@ -278,6 +282,20 @@ def setup_pipeline(config: Dict[str, Any]) -> bool:
             st.error("Erro ao configurar fonte de vídeo.")
             return False
 
+        # Obter informações do vídeo para detectar o fim
+        try:
+            if isinstance(config["source_path"], str) and Path(config["source_path"]).exists():
+                cap = cv2.VideoCapture(config["source_path"])
+                if cap.isOpened():
+                    st.session_state.total_video_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+                    cap.release()
+                else:
+                    st.session_state.total_video_frames = 0
+            else:
+                st.session_state.total_video_frames = 0  # Para streams/webcam
+        except:
+            st.session_state.total_video_frames = 0
+
         # Configurar detector
         detector_config = {
             "confidence": config["confidence"],
@@ -291,6 +309,7 @@ def setup_pipeline(config: Dict[str, Any]) -> bool:
             return False
 
         st.session_state.pipeline = pipeline
+        st.session_state.video_finished = False
         return True
 
     except Exception as e:
@@ -299,7 +318,7 @@ def setup_pipeline(config: Dict[str, Any]) -> bool:
         return False
 
 
-def create_frame_callback(frame_queue, results_queue):
+def create_frame_callback(frame_queue, results_queue, total_frames=0):
     """Cria callback que usa queues thread-safe."""
 
     def process_frame_callback(frame, detections, frame_number):
@@ -342,6 +361,13 @@ def create_frame_callback(frame_queue, results_queue):
             except queue.Empty:
                 pass
 
+        # Verificar se chegou ao fim do vídeo (para arquivos de vídeo)
+        if total_frames > 0 and frame_number >= total_frames:
+            try:
+                results_queue.put_nowait({"video_finished": True})
+            except queue.Full:
+                pass
+
     return process_frame_callback
 
 
@@ -359,6 +385,16 @@ def process_queues():
     try:
         while not st.session_state.results_queue.empty():
             result_data = st.session_state.results_queue.get_nowait()
+
+            # Verificar se é uma mensagem de fim de vídeo
+            if isinstance(result_data, dict) and result_data.get("video_finished"):
+                st.session_state.video_finished = True
+                if st.session_state.pipeline:
+                    st.session_state.pipeline.stop()
+                st.session_state.is_running = False
+                continue
+
+            # Dados normais de detecção
             st.session_state.detection_results.append(result_data)
 
             # Manter apenas últimos 100 frames para economizar memória
@@ -420,7 +456,9 @@ def render_main_content():
 
                     # Criar callback thread-safe
                     frame_callback = create_frame_callback(
-                        st.session_state.frame_queue, st.session_state.results_queue
+                        st.session_state.frame_queue,
+                        st.session_state.results_queue,
+                        st.session_state.total_video_frames,
                     )
                     st.session_state.pipeline.add_frame_callback(frame_callback)
 
@@ -491,6 +529,18 @@ def render_main_content():
                 cv2.cvtColor(annotated_frame, cv2.COLOR_BGR2RGB), channels="RGB", use_column_width=True
             )
 
+        # Mostrar barra de progresso para arquivos de vídeo
+        if st.session_state.is_running and st.session_state.total_video_frames > 0:
+            current_frame = 0
+            if st.session_state.detection_results:
+                current_frame = st.session_state.detection_results[-1]["frame_number"]
+
+            progress = min(current_frame / st.session_state.total_video_frames, 1.0)
+            st.progress(
+                progress,
+                text=f"Progresso: {progress*100:.1f}% ({current_frame}/{st.session_state.total_video_frames} frames)",
+            )
+
     with col2:
         st.header("Estatísticas")
 
@@ -543,7 +593,7 @@ def main():
 
     render_main_content()
 
-    # Verificar se a execução da thread terminou
+    # Verificar se a execução da thread terminou ou se o vídeo acabou
     if hasattr(st.session_state, "_temp_execution_finished") and st.session_state._temp_execution_finished:
         # Processar resultados da thread
         if st.session_state._temp_results:
@@ -557,6 +607,24 @@ def main():
         st.session_state._temp_results = None
         st.session_state._temp_error = None
         st.session_state.is_running = False
+
+    # Verificar se o vídeo terminou
+    if st.session_state.video_finished and st.session_state.is_running:
+        st.session_state.is_running = False
+        st.success("Vídeo processado completamente!")
+
+        # Mostrar estatísticas finais
+        if st.session_state.detection_results:
+            total_detections = sum(r["detections_count"] for r in st.session_state.detection_results)
+            total_frames = len(st.session_state.detection_results)
+            avg_detections = total_detections / max(total_frames, 1)
+
+            st.info(
+                f"**Estatísticas Finais:**\n"
+                f"- Total de frames processados: {total_frames}\n"
+                f"- Total de detecções: {total_detections}\n"
+                f"- Média de detecções por frame: {avg_detections:.2f}"
+            )
 
     # Auto-refresh para atualizar interface
     if st.session_state.is_running:
