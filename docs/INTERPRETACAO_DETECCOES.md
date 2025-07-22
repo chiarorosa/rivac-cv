@@ -5,10 +5,12 @@ Este documento explica como interpretar e analisar os dados exportados pelo sist
 ## 📊 Visão Geral das Exportações
 
 O sistema RIVAC-CV exporta detecções em dois formatos principais:
+
 - **CSV**: Para análise em planilhas e ferramentas de BI
 - **JSON**: Para integração com APIs e análise programática
 
 Cada exportação contém:
+
 - **Metadados da sessão**: Informações sobre o processamento
 - **Detecções frame-by-frame**: Dados detalhados de cada objeto detectado
 - **Coordenadas precisas**: Bounding boxes e posições centrais
@@ -25,16 +27,16 @@ frame_number,session_id,timestamp,class_id,class_name,confidence,x1,y1,x2,y2
 
 #### Campos Detalhados:
 
-| Campo | Tipo | Descrição | Exemplo |
-|-------|------|-----------|---------|
-| `frame_number` | int | Número sequencial do frame (0-indexed) | `0, 1, 2, ...` |
-| `session_id` | string | Identificador único da sessão (8 chars) | `ebc0d9ad` |
-| `timestamp` | ISO datetime | Data/hora da exportação | `2025-07-21T21:36:14.356268` |
-| `class_id` | int | ID da classe COCO detectada | `0` (person) |
-| `class_name` | string | Nome da classe detectada | `person, car, bicycle` |
-| `confidence` | float | Confiança da detecção (0.0-1.0) | `0.8675` |
-| `x1, y1` | float | Coordenadas do canto superior esquerdo | `163.37, 110.61` |
-| `x2, y2` | float | Coordenadas do canto inferior direito | `222.34, 242.93` |
+| Campo          | Tipo         | Descrição                               | Exemplo                      |
+| -------------- | ------------ | --------------------------------------- | ---------------------------- |
+| `frame_number` | int          | Número sequencial do frame (0-indexed)  | `0, 1, 2, ...`               |
+| `session_id`   | string       | Identificador único da sessão (8 chars) | `ebc0d9ad`                   |
+| `timestamp`    | ISO datetime | Data/hora da exportação                 | `2025-07-21T21:36:14.356268` |
+| `class_id`     | int          | ID da classe COCO detectada             | `0` (person)                 |
+| `class_name`   | string       | Nome da classe detectada                | `person, car, bicycle`       |
+| `confidence`   | float        | Confiança da detecção (0.0-1.0)         | `0.8675`                     |
+| `x1, y1`       | float        | Coordenadas do canto superior esquerdo  | `163.37, 110.61`             |
+| `x2, y2`       | float        | Coordenadas do canto inferior direito   | `222.34, 242.93`             |
 
 ### Formato JSON
 
@@ -67,19 +69,20 @@ frame_number,session_id,timestamp,class_id,class_name,confidence,x1,y1,x2,y2
 
 #### Campos Adicionais no JSON:
 
-| Campo | Descrição | Cálculo |
-|-------|-----------|---------|
-| `center_x` | Centro horizontal da detecção | `(x1 + x2) / 2` |
-| `center_y` | Centro vertical da detecção | `(y1 + y2) / 2` |
-| `width` | Largura da bounding box | `x2 - x1` |
-| `height` | Altura da bounding box | `y2 - y1` |
-| `track_id` | ID de rastreamento (futuro) | `null` atualmente |
+| Campo      | Descrição                     | Cálculo           |
+| ---------- | ----------------------------- | ----------------- |
+| `center_x` | Centro horizontal da detecção | `(x1 + x2) / 2`   |
+| `center_y` | Centro vertical da detecção   | `(y1 + y2) / 2`   |
+| `width`    | Largura da bounding box       | `x2 - x1`         |
+| `height`   | Altura da bounding box        | `y2 - y1`         |
+| `track_id` | ID de rastreamento (futuro)   | `null` atualmente |
 
 ## 📈 Análises Possíveis
 
 ### 1. Análise Temporal
 
 **Contagem de pessoas por frame:**
+
 ```python
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -103,6 +106,7 @@ plt.show()
 ### 2. Análise de Distribuição Espacial
 
 **Mapa de calor das posições:**
+
 ```python
 import seaborn as sns
 import numpy as np
@@ -125,6 +129,7 @@ plt.show()
 ### 3. Análise de Confiança
 
 **Distribuição das confianças:**
+
 ```python
 # Histograma de confianças
 plt.figure(figsize=(10, 6))
@@ -132,7 +137,7 @@ plt.hist(df['confidence'], bins=50, alpha=0.7, edgecolor='black')
 plt.title('Distribuição dos Scores de Confiança')
 plt.xlabel('Confiança')
 plt.ylabel('Frequência')
-plt.axvline(df['confidence'].mean(), color='red', linestyle='--', 
+plt.axvline(df['confidence'].mean(), color='red', linestyle='--',
            label=f'Média: {df["confidence"].mean():.3f}')
 plt.legend()
 plt.grid(True, alpha=0.3)
@@ -147,6 +152,7 @@ print(f"Desvio padrão: {df['confidence'].std():.3f}")
 ### 4. Análise de Tamanhos
 
 **Distribuição de tamanhos das detecções:**
+
 ```python
 # Calcular dimensões
 df['width'] = df['x2'] - df['x1']
@@ -155,7 +161,7 @@ df['area'] = df['width'] * df['height']
 
 # Gráfico de dispersão
 plt.figure(figsize=(10, 8))
-scatter = plt.scatter(df['width'], df['height'], 
+scatter = plt.scatter(df['width'], df['height'],
                      c=df['confidence'], cmap='viridis', alpha=0.6)
 plt.colorbar(scatter, label='Confiança')
 plt.title('Distribuição de Tamanhos das Detecções')
@@ -254,14 +260,14 @@ plt.show()
 def estimate_dwell_time(df, confidence_threshold=0.5):
     # Filtrar por confiança
     high_conf = df[df['confidence'] > confidence_threshold]
-    
+
     # Calcular duração do vídeo
     total_frames = df['frame_number'].max()
     duration_seconds = total_frames / 24.0
-    
+
     # Estimar tempo médio de permanência
     avg_detections_per_frame = len(high_conf) / total_frames
-    
+
     return {
         'total_duration': duration_seconds,
         'avg_people_per_frame': avg_detections_per_frame,
@@ -281,36 +287,36 @@ for key, value in stats.items():
 ```python
 def generate_detection_report(csv_path, output_path='detection_report.html'):
     """Gera relatório HTML automático das detecções"""
-    
+
     import pandas as pd
     import matplotlib.pyplot as plt
     from matplotlib.backends.backend_pdf import PdfPages
-    
+
     # Carregar dados
     df = pd.read_csv(csv_path)
-    
+
     # Calcular métricas
     total_detections = len(df)
     total_frames = df['frame_number'].nunique()
     avg_confidence = df['confidence'].mean()
     duration = df['frame_number'].max() / 24.0
-    
+
     # Gerar gráficos
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(15, 10))
-    
+
     # Detecções por frame
     frame_counts = df.groupby('frame_number').size()
     ax1.plot(frame_counts.index, frame_counts.values)
     ax1.set_title('Detecções por Frame')
     ax1.set_xlabel('Frame')
     ax1.set_ylabel('Contagem')
-    
+
     # Distribuição de confiança
     ax2.hist(df['confidence'], bins=30, alpha=0.7)
     ax2.set_title('Distribuição de Confiança')
     ax2.set_xlabel('Confiança')
     ax2.set_ylabel('Frequência')
-    
+
     # Posições (scatter)
     center_x = (df['x1'] + df['x2']) / 2
     center_y = (df['y1'] + df['y2']) / 2
@@ -319,7 +325,7 @@ def generate_detection_report(csv_path, output_path='detection_report.html'):
     ax3.set_xlabel('X (pixels)')
     ax3.set_ylabel('Y (pixels)')
     ax3.invert_yaxis()
-    
+
     # Timeline
     df['time_sec'] = df['frame_number'] / 24.0
     timeline = df.groupby(df['time_sec'].astype(int)).size()
@@ -327,10 +333,10 @@ def generate_detection_report(csv_path, output_path='detection_report.html'):
     ax4.set_title('Atividade por Segundo')
     ax4.set_xlabel('Tempo (s)')
     ax4.set_ylabel('Detecções')
-    
+
     plt.tight_layout()
     plt.savefig(output_path.replace('.html', '.png'), dpi=300, bbox_inches='tight')
-    
+
     # Salvar relatório
     report = f"""
     <!DOCTYPE html>
@@ -350,10 +356,10 @@ def generate_detection_report(csv_path, output_path='detection_report.html'):
     </body>
     </html>
     """
-    
+
     with open(output_path, 'w') as f:
         f.write(report)
-    
+
     print(f"Relatório salvo em: {output_path}")
 
 # Usar o script
@@ -363,21 +369,25 @@ generate_detection_report('data/exports/detections_session_id.csv')
 ## 🚀 Integração com Ferramentas
 
 ### Power BI
+
 1. Importar CSV diretamente
 2. Criar medidas DAX para métricas customizadas
 3. Dashboards em tempo real
 
 ### Tableau
+
 1. Conectar fonte de dados CSV/JSON
 2. Criar calculated fields para análises
 3. Visualizações interativas
 
 ### Excel
+
 1. Abrir CSV diretamente
 2. Tabelas dinâmicas para agregações
 3. Gráficos automáticos
 
 ### Python + Jupyter
+
 1. Análises exploratórias
 2. Machine learning sobre padrões
 3. Relatórios automatizados
@@ -385,16 +395,19 @@ generate_detection_report('data/exports/detections_session_id.csv')
 ## 📝 Considerações Importantes
 
 ### Precisão dos Dados
+
 - **Confiança**: Valores baixos podem indicar falsos positivos
 - **Coordenadas**: Relativas ao frame original (1280x720 nos samples)
 - **Sobreposição**: Múltiplas detecções podem ser da mesma pessoa
 
 ### Limitações
+
 - **Oclusão**: Pessoas parcialmente visíveis podem não ser detectadas
 - **Distância**: Pessoas muito pequenas podem ter baixa confiança
 - **Iluminação**: Condições ruins afetam a detecção
 
 ### Boas Práticas
+
 - **Filtrar por confiança**: Use threshold >= 0.5 para análises críticas
 - **Validar manualmente**: Sempre revisar amostras dos dados
 - **Considerar contexto**: Interpretar dados no contexto do ambiente filmado
