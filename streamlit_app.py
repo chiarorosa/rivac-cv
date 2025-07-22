@@ -134,7 +134,7 @@ def render_header():
     st.markdown(
         """
     <div class="main-header">
-        <h1>🛒 RIVAC-CV - Sistema de Monitoramento por Visão Computacional</h1>
+        <h1>RIVAC-CV - Sistema de Monitoramento por Visão Computacional</h1>
         <p>Análise inteligente de fluxo de pessoas em ambientes de varejo</p>
     </div>
     """,
@@ -144,10 +144,10 @@ def render_header():
 
 def render_sidebar():
     """Renderiza barra lateral com configurações."""
-    st.sidebar.title("⚙️ Configurações")
+    st.sidebar.title("Configurações")
 
     # Seção de entrada de vídeo
-    st.sidebar.header("📹 Fonte de Vídeo")
+    st.sidebar.header("Fonte de Vídeo")
 
     source_type = st.sidebar.selectbox("Tipo de fonte:", ["Webcam", "Arquivo de vídeo", "URL/Stream", "Câmera IP"])
 
@@ -162,31 +162,31 @@ def render_sidebar():
         available_videos = get_available_videos()
 
         if available_videos:
-            st.sidebar.subheader("📋 Vídeos Disponíveis")
+            st.sidebar.subheader("Vídeos Disponíveis")
 
             # Criar opções para selectbox
-            video_options = ["🆕 Fazer upload de novo arquivo..."]
+            video_options = ["Fazer upload de novo arquivo..."]
             for video in available_videos:
-                video_options.append(f"📽️ {video['name']} ({video['size_mb']} MB)")
+                video_options.append(f"{video['name']} ({video['size_mb']} MB)")
 
             selected_option = st.sidebar.selectbox("Escolher vídeo:", video_options)
 
-            if selected_option.startswith("📽️"):
+            if selected_option.startswith("+"):
                 # Usuário selecionou um vídeo existente
-                video_name = selected_option.split("📽️ ")[1].split(" (")[0]
+                video_name = selected_option.split("+ ")[1].split(" (")[0]
                 selected_video = next(v for v in available_videos if v["name"] == video_name)
                 source_path = selected_video["path"]
 
                 # Mostrar informações detalhadas do vídeo selecionado
-                st.sidebar.success(f"✅ Vídeo selecionado: {video_name}")
+                st.sidebar.success(f"Vídeo selecionado: {video_name}")
 
                 # Criar um expander com informações detalhadas
-                with st.sidebar.expander("ℹ️ Informações do Vídeo"):
-                    st.write(f"**📁 Arquivo:** {selected_video['name']}")
-                    st.write(f"**📏 Tamanho:** {selected_video['size_mb']} MB")
-                    st.write(f"**⏱️ Duração:** {selected_video['duration']}")
-                    st.write(f"**🎬 FPS:** {selected_video['fps']}")
-                    st.write(f"**📺 Resolução:** {selected_video['resolution']}")
+                with st.sidebar.expander("Informações do Vídeo"):
+                    st.write(f"**Arquivo:** {selected_video['name']}")
+                    st.write(f"**Tamanho:** {selected_video['size_mb']} MB")
+                    st.write(f"**Duração:** {selected_video['duration']}")
+                    st.write(f"**FPS:** {selected_video['fps']}")
+                    st.write(f"**Resolução:** {selected_video['resolution']}")
 
             else:
                 # Usuário quer fazer upload
@@ -200,10 +200,10 @@ def render_sidebar():
                     with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as tmp_file:
                         tmp_file.write(uploaded_file.read())
                         source_path = tmp_file.name
-                    st.sidebar.success(f"✅ Upload concluído: {uploaded_file.name}")
+                    st.sidebar.success(f"Upload concluído: {uploaded_file.name}")
         else:
             # Nenhum vídeo disponível, apenas upload
-            st.sidebar.info("ℹ️ Nenhum vídeo encontrado em data/videos/")
+            st.sidebar.info("Nenhum vídeo encontrado em data/videos/")
             uploaded_file = st.sidebar.file_uploader(
                 "Fazer upload de arquivo:",
                 type=["mp4", "avi", "mov", "mkv"],
@@ -214,7 +214,7 @@ def render_sidebar():
                 with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as tmp_file:
                     tmp_file.write(uploaded_file.read())
                     source_path = tmp_file.name
-                st.sidebar.success(f"✅ Upload concluído: {uploaded_file.name}")
+                st.sidebar.success(f"Upload concluído: {uploaded_file.name}")
 
     elif source_type == "URL/Stream":
         source_path = st.sidebar.text_input("URL do stream:")
@@ -229,7 +229,7 @@ def render_sidebar():
             source_path = f"rtsp://{username}:{password}@{ip}:{port}/stream"
 
     # Configurações de detecção
-    st.sidebar.header("🔍 Detecção")
+    st.sidebar.header("Detecção")
 
     model_options = {
         "YOLOv11n (Rápido)": "data/models/yolo11n.pt",
@@ -246,7 +246,7 @@ def render_sidebar():
     iou_threshold = st.sidebar.slider("Threshold IoU:", min_value=0.1, max_value=1.0, value=0.5, step=0.05)
 
     # Configurações de visualização
-    st.sidebar.header("👁️ Visualização")
+    st.sidebar.header("Visualização")
 
     show_bboxes = st.sidebar.checkbox("Mostrar bounding boxes", value=True)
     show_confidence = st.sidebar.checkbox("Mostrar confiança", value=True)
@@ -267,7 +267,7 @@ def setup_pipeline(config: Dict[str, Any]) -> bool:
     """Configura o pipeline de detecção."""
     try:
         if not config["source_path"]:
-            st.error("⚠️ Por favor, configure uma fonte de vídeo.")
+            st.error("Por favor, configure uma fonte de vídeo.")
             return False
 
         # Criar pipeline
@@ -275,7 +275,7 @@ def setup_pipeline(config: Dict[str, Any]) -> bool:
 
         # Configurar fonte
         if not pipeline.setup_source(config["source_path"]):
-            st.error("❌ Erro ao configurar fonte de vídeo.")
+            st.error("Erro ao configurar fonte de vídeo.")
             return False
 
         # Configurar detector
@@ -287,14 +287,14 @@ def setup_pipeline(config: Dict[str, Any]) -> bool:
         }
 
         if not pipeline.setup_detector(config["model_path"], **detector_config):
-            st.error("❌ Erro ao configurar detector.")
+            st.error("Erro ao configurar detector.")
             return False
 
         st.session_state.pipeline = pipeline
         return True
 
     except Exception as e:
-        st.error(f"❌ Erro ao configurar pipeline: {e}")
+        st.error(f"Erro ao configurar pipeline: {e}")
         logger.error(f"Erro na configuração: {e}")
         return False
 
@@ -405,7 +405,7 @@ def render_main_content():
     col1, col2 = st.columns([2, 1])
 
     with col1:
-        st.header("📺 Monitor de Vídeo")
+        st.header("Monitor de Vídeo")
 
         # Container para o vídeo
         video_container = st.empty()
@@ -414,7 +414,7 @@ def render_main_content():
         control_col1, control_col2, control_col3 = st.columns(3)
 
         with control_col1:
-            if st.button("▶️ Iniciar", type="primary"):
+            if st.button("Iniciar", type="primary"):
                 if setup_pipeline(config):
                     st.session_state.is_running = True
 
@@ -447,17 +447,17 @@ def render_main_content():
                     thread = threading.Thread(target=run_pipeline, daemon=True)
                     thread.start()
 
-                    st.success("✅ Processamento iniciado!")
+                    st.success("Processamento iniciado!")
 
         with control_col2:
-            if st.button("⏸️ Parar"):
+            if st.button("Parar"):
                 if st.session_state.pipeline:
                     st.session_state.pipeline.stop()
                 st.session_state.is_running = False
-                st.info("⏸️ Processamento parado.")
+                st.info("Processamento parado.")
 
         with control_col3:
-            if st.button("💾 Exportar Dados"):
+            if st.button("Exportar Dados"):
                 if st.session_state.detection_results:
                     # Preparar dados para download
                     df = pd.DataFrame()
@@ -470,7 +470,7 @@ def render_main_content():
 
                     csv = df.to_csv(index=False)
                     st.download_button(
-                        label="📥 Download CSV",
+                        label="Download CSV",
                         data=csv,
                         file_name=f"detections_{int(time.time())}.csv",
                         mime="text/csv",
@@ -492,7 +492,7 @@ def render_main_content():
             )
 
     with col2:
-        st.header("📊 Estatísticas")
+        st.header("Estatísticas")
 
         # Status do sistema
         if st.session_state.is_running:
@@ -514,7 +514,7 @@ def render_main_content():
 
         # Gráfico de detecções por frame
         if len(st.session_state.detection_results) > 1:
-            st.subheader("📈 Detecções por Frame")
+            st.subheader("Detecções por Frame")
 
             df_chart = pd.DataFrame(
                 [
@@ -526,11 +526,11 @@ def render_main_content():
             st.line_chart(df_chart.set_index("frame"))
 
         # Histórico de detecções
-        st.subheader("📋 Histórico Recente")
+        st.subheader("Histórico Recente")
         if st.session_state.detection_results:
             for result in st.session_state.detection_results[-10:]:  # Últimos 10
                 timestamp = time.strftime("%H:%M:%S", time.localtime(result["timestamp"]))
-                st.write(f"⏰ {timestamp} - Frame {result['frame_number']}: {result['detections_count']} pessoas")
+                st.write(f">{timestamp} - Frame {result['frame_number']}: {result['detections_count']} pessoas")
 
 
 def main():
@@ -548,9 +548,9 @@ def main():
         # Processar resultados da thread
         if st.session_state._temp_results:
             st.session_state.statistics = st.session_state._temp_results
-            st.success("✅ Processamento concluído!")
+            st.success("Processamento concluído!")
         elif st.session_state._temp_error:
-            st.error(f"❌ Erro durante processamento: {st.session_state._temp_error}")
+            st.error(f"Erro durante processamento: {st.session_state._temp_error}")
 
         # Limpar flags temporárias
         st.session_state._temp_execution_finished = False
