@@ -254,7 +254,6 @@ def render_sidebar():
 
     show_bboxes = st.sidebar.checkbox("Mostrar bounding boxes", value=True)
     show_confidence = st.sidebar.checkbox("Mostrar confiança", value=True)
-    show_fps = st.sidebar.checkbox("Mostrar FPS", value=True)
 
     return {
         "source_path": source_path,
@@ -263,7 +262,6 @@ def render_sidebar():
         "iou_threshold": iou_threshold,
         "show_bboxes": show_bboxes,
         "show_confidence": show_confidence,
-        "show_fps": show_fps,
     }
 
 
