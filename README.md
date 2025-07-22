@@ -227,7 +227,7 @@ A interface Streamlit oferece:
 - Análise de trajetórias
 - Detecção de aglomerações
 
-## 🧪 Testes
+## 🧪 Testes _ToDo_
 
 ```bash
 # Executar todos os testes
