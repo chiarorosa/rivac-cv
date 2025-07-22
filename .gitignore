@@ -185,7 +185,7 @@ cython_debug/
 # Data files
 data/videos/*
 !data/videos/.gitkeep
-!data/videos/sample.mp4
+!data/videos/sample*.mp4
 data/models/*
 !data/models/.gitkeep
 !data/models/README.md

@@ -1,9 +1,13 @@
 # Diretório para vídeos de teste
 
-Este diretório deve conter os vídeos para teste do sistema RIVAC-CV.
+Este diretório contém os vídeos para teste do sistema RIVAC-CV.
+
+## Vídeos Incluídos:
+- `sample_1.mp4` - Vídeo de exemplo para testes básicos (~2.4MB)
+- `sample_2.mp4` - Vídeo de exemplo para diferentes cenários (~2.1MB)
 
 ## Estrutura recomendada:
-- `sample.mp4` - Vídeo de exemplo para testes
+- `sample*.mp4` - Vídeos de exemplo incluídos no repositório
 - `test_*.mp4` - Vídeos específicos para diferentes cenários
 - `demo_*.mp4` - Vídeos para demonstrações
 
@@ -13,4 +17,17 @@ Este diretório deve conter os vídeos para teste do sistema RIVAC-CV.
 - MOV
 - WEBM
 
-⚠️ **Nota**: Arquivos de vídeo grandes não são versionados no Git. Use Git LFS se necessário.
+## Uso dos vídeos sample:
+```bash
+# Testar com vídeo sample 1
+uv run python main.py --source data/videos/sample_1.mp4
+
+# Testar com vídeo sample 2  
+uv run python main.py --source data/videos/sample_2.mp4
+
+# Interface web com vídeo sample
+uv run streamlit run streamlit_app.py
+# Então selecione um dos arquivos sample na interface
+```
+
+⚠️ **Nota**: Arquivos de vídeo grandes não são versionados no Git. Os arquivos sample são pequenos (<5MB) e incluídos para facilitar testes iniciais.
