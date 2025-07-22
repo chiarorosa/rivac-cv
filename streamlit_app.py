@@ -412,23 +412,36 @@ def draw_detections(frame: np.ndarray, detections: list, config: Dict[str, Any])
     annotated_frame = frame.copy()
 
     for detection in detections:
-        x1, y1, x2, y2 = map(int, detection["bbox"])
-        confidence = detection["confidence"]
-        class_name = detection.get("class_name", "object")
+        try:
+            x1, y1, x2, y2 = map(int, detection["bbox"])
+            confidence = detection["confidence"]
+            class_name = detection.get("class_name", "object")
 
-        # Desenhar bounding box
-        cv2.rectangle(annotated_frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            # Garantir que class_name seja uma string
+            if not isinstance(class_name, str):
+                class_name = str(class_name) if class_name is not None else "object"
 
-        # Desenhar label
-        if config.get("show_confidence", True):
-            label = f"{class_name}: {confidence:.2f}"
-        else:
-            label = class_name
+            # Desenhar bounding box
+            cv2.rectangle(annotated_frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
-        # Calcular posição do texto
-        (text_width, text_height), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)
-        cv2.rectangle(annotated_frame, (x1, y1 - text_height - 10), (x1 + text_width, y1), (0, 255, 0), -1)
-        cv2.putText(annotated_frame, label, (x1, y1 - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1)
+            # Desenhar label
+            if config.get("show_confidence", True):
+                label = f"{class_name}: {confidence:.2f}"
+            else:
+                label = class_name
+
+            # Garantir que label seja uma string válida
+            label = str(label) if label is not None else "unknown"
+
+            # Calcular posição do texto
+            (text_width, text_height), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)
+            cv2.rectangle(annotated_frame, (x1, y1 - text_height - 10), (x1 + text_width, y1), (0, 255, 0), -1)
+            cv2.putText(annotated_frame, label, (x1, y1 - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1)
+
+        except Exception as e:
+            # Se houver erro em uma detecção específica, continue com as outras
+            logger.warning(f"Erro ao desenhar detecção: {e}")
+            continue
 
     return annotated_frame
 
@@ -518,11 +531,20 @@ def render_main_content():
         if st.session_state.current_frame is not None:
             # Obter últimas detecções
             latest_detections = []
-            if st.session_state.detection_results:
-                latest_detections = st.session_state.detection_results[-1]["detections"]
+            if st.session_state.detection_results and len(st.session_state.detection_results) > 0:
+                last_result = st.session_state.detection_results[-1]
+                if isinstance(last_result, dict) and "detections" in last_result:
+                    latest_detections = last_result["detections"]
+                    # Garantir que latest_detections é uma lista
+                    if not isinstance(latest_detections, list):
+                        latest_detections = []
 
             # Desenhar detecções
-            annotated_frame = draw_detections(st.session_state.current_frame, latest_detections, config)
+            try:
+                annotated_frame = draw_detections(st.session_state.current_frame, latest_detections, config)
+            except Exception as e:
+                logger.warning(f"Erro ao desenhar detecções: {e}")
+                annotated_frame = st.session_state.current_frame
 
             # Mostrar no Streamlit
             video_container.image(
