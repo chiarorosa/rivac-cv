@@ -548,7 +548,7 @@ def render_main_content():
 
             # Mostrar no Streamlit
             video_container.image(
-                cv2.cvtColor(annotated_frame, cv2.COLOR_BGR2RGB), channels="RGB", use_column_width=True
+                cv2.cvtColor(annotated_frame, cv2.COLOR_BGR2RGB), channels="RGB", use_container_width=True
             )
 
         # Mostrar barra de progresso para arquivos de vídeo
