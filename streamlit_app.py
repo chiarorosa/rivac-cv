@@ -3,6 +3,7 @@ Interface principal do sistema usando Streamlit
 Dashboard interativo para monitoramento em tempo real
 """
 
+import queue
 import tempfile
 import threading
 import time
@@ -73,15 +74,15 @@ def get_available_videos():
     videos_dir = Path("data/videos")
     if not videos_dir.exists():
         return []
-    
+
     video_extensions = [".mp4", ".avi", ".mov", ".mkv", ".m4v", ".flv", ".wmv"]
     available_videos = []
-    
+
     for video_file in videos_dir.iterdir():
         if video_file.is_file() and video_file.suffix.lower() in video_extensions:
             # Obter informações do arquivo
             file_size = video_file.stat().st_size / (1024 * 1024)  # MB
-            
+
             # Tentar obter informações do vídeo usando OpenCV
             video_info = {"duration": "N/A", "fps": "N/A", "resolution": "N/A"}
             try:
@@ -91,7 +92,7 @@ def get_available_videos():
                     frame_count = cap.get(cv2.CAP_PROP_FRAME_COUNT)
                     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
                     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-                    
+
                     if fps > 0:
                         duration = frame_count / fps
                         video_info["duration"] = f"{duration:.1f}s"
@@ -100,14 +101,11 @@ def get_available_videos():
                 cap.release()
             except:
                 pass  # Se não conseguir obter informações, usa valores padrão
-            
-            available_videos.append({
-                "name": video_file.name,
-                "path": str(video_file),
-                "size_mb": round(file_size, 1),
-                **video_info
-            })
-    
+
+            available_videos.append(
+                {"name": video_file.name, "path": str(video_file), "size_mb": round(file_size, 1), **video_info}
+            )
+
     return sorted(available_videos, key=lambda x: x["name"])
 
 
@@ -125,6 +123,10 @@ def initialize_session_state():
         st.session_state.current_frame = None
     if "statistics" not in st.session_state:
         st.session_state.statistics = {}
+    if "frame_queue" not in st.session_state:
+        st.session_state.frame_queue = queue.Queue(maxsize=10)
+    if "results_queue" not in st.session_state:
+        st.session_state.results_queue = queue.Queue(maxsize=100)
 
 
 def render_header():
@@ -158,26 +160,26 @@ def render_sidebar():
     elif source_type == "Arquivo de vídeo":
         # Obter vídeos disponíveis
         available_videos = get_available_videos()
-        
+
         if available_videos:
             st.sidebar.subheader("📋 Vídeos Disponíveis")
-            
+
             # Criar opções para selectbox
             video_options = ["🆕 Fazer upload de novo arquivo..."]
             for video in available_videos:
                 video_options.append(f"📽️ {video['name']} ({video['size_mb']} MB)")
-            
+
             selected_option = st.sidebar.selectbox("Escolher vídeo:", video_options)
-            
+
             if selected_option.startswith("📽️"):
                 # Usuário selecionou um vídeo existente
                 video_name = selected_option.split("📽️ ")[1].split(" (")[0]
                 selected_video = next(v for v in available_videos if v["name"] == video_name)
                 source_path = selected_video["path"]
-                
+
                 # Mostrar informações detalhadas do vídeo selecionado
                 st.sidebar.success(f"✅ Vídeo selecionado: {video_name}")
-                
+
                 # Criar um expander com informações detalhadas
                 with st.sidebar.expander("ℹ️ Informações do Vídeo"):
                     st.write(f"**📁 Arquivo:** {selected_video['name']}")
@@ -185,13 +187,13 @@ def render_sidebar():
                     st.write(f"**⏱️ Duração:** {selected_video['duration']}")
                     st.write(f"**🎬 FPS:** {selected_video['fps']}")
                     st.write(f"**📺 Resolução:** {selected_video['resolution']}")
-                
+
             else:
                 # Usuário quer fazer upload
                 uploaded_file = st.sidebar.file_uploader(
-                    "Fazer upload de arquivo:", 
+                    "Fazer upload de arquivo:",
                     type=["mp4", "avi", "mov", "mkv"],
-                    help="Formatos suportados: MP4, AVI, MOV, MKV"
+                    help="Formatos suportados: MP4, AVI, MOV, MKV",
                 )
                 if uploaded_file:
                     # Salvar arquivo temporário
@@ -203,9 +205,9 @@ def render_sidebar():
             # Nenhum vídeo disponível, apenas upload
             st.sidebar.info("ℹ️ Nenhum vídeo encontrado em data/videos/")
             uploaded_file = st.sidebar.file_uploader(
-                "Fazer upload de arquivo:", 
+                "Fazer upload de arquivo:",
                 type=["mp4", "avi", "mov", "mkv"],
-                help="Formatos suportados: MP4, AVI, MOV, MKV"
+                help="Formatos suportados: MP4, AVI, MOV, MKV",
             )
             if uploaded_file:
                 # Salvar arquivo temporário
@@ -297,23 +299,73 @@ def setup_pipeline(config: Dict[str, Any]) -> bool:
         return False
 
 
-def process_frame_callback(frame, detections, frame_number):
-    """Callback chamado a cada frame processado."""
-    # Atualizar frame atual
-    st.session_state.current_frame = frame.copy()
+def create_frame_callback(frame_queue, results_queue):
+    """Cria callback que usa queues thread-safe."""
 
-    # Adicionar detecções aos resultados
-    frame_results = {
-        "frame_number": frame_number,
-        "timestamp": time.time(),
-        "detections_count": len(detections),
-        "detections": [det.to_dict() for det in detections],
-    }
-    st.session_state.detection_results.append(frame_results)
+    def process_frame_callback(frame, detections, frame_number):
+        """Callback chamado a cada frame processado."""
+        # Usar queues thread-safe em vez de session_state diretamente
+        frame_data = {
+            "frame": frame.copy(),
+            "detections": [det.to_dict() for det in detections],
+            "frame_number": frame_number,
+            "timestamp": time.time(),
+            "detections_count": len(detections),
+        }
 
-    # Manter apenas últimos 100 frames para economizar memória
-    if len(st.session_state.detection_results) > 100:
-        st.session_state.detection_results.pop(0)
+        # Adicionar à queue de frames (non-blocking, descarta se cheia)
+        try:
+            frame_queue.put_nowait(frame_data)
+        except queue.Full:
+            # Se a queue estiver cheia, remove o mais antigo e adiciona o novo
+            try:
+                frame_queue.get_nowait()
+                frame_queue.put_nowait(frame_data)
+            except queue.Empty:
+                pass
+
+        # Adicionar à queue de resultados
+        result_data = {
+            "frame_number": frame_number,
+            "timestamp": time.time(),
+            "detections_count": len(detections),
+            "detections": [det.to_dict() for det in detections],
+        }
+
+        try:
+            results_queue.put_nowait(result_data)
+        except queue.Full:
+            # Se a queue estiver cheia, remove o mais antigo e adiciona o novo
+            try:
+                results_queue.get_nowait()
+                results_queue.put_nowait(result_data)
+            except queue.Empty:
+                pass
+
+    return process_frame_callback
+
+
+def process_queues():
+    """Processa queues de frames e resultados de forma thread-safe."""
+    # Processar queue de frames
+    try:
+        while not st.session_state.frame_queue.empty():
+            frame_data = st.session_state.frame_queue.get_nowait()
+            st.session_state.current_frame = frame_data["frame"]
+    except queue.Empty:
+        pass
+
+    # Processar queue de resultados
+    try:
+        while not st.session_state.results_queue.empty():
+            result_data = st.session_state.results_queue.get_nowait()
+            st.session_state.detection_results.append(result_data)
+
+            # Manter apenas últimos 100 frames para economizar memória
+            if len(st.session_state.detection_results) > 100:
+                st.session_state.detection_results.pop(0)
+    except queue.Empty:
+        pass
 
 
 def draw_detections(frame: np.ndarray, detections: list, config: Dict[str, Any]) -> np.ndarray:
@@ -366,18 +418,31 @@ def render_main_content():
                 if setup_pipeline(config):
                     st.session_state.is_running = True
 
-                    # Adicionar callback
-                    st.session_state.pipeline.add_frame_callback(process_frame_callback)
+                    # Criar callback thread-safe
+                    frame_callback = create_frame_callback(
+                        st.session_state.frame_queue, st.session_state.results_queue
+                    )
+                    st.session_state.pipeline.add_frame_callback(frame_callback)
+
+                    # Salvar referência do pipeline para evitar problemas de thread
+                    pipeline_instance = st.session_state.pipeline
 
                     # Executar pipeline em thread separada
                     def run_pipeline():
                         try:
-                            results = st.session_state.pipeline.run(max_frames=None, show_progress=False)
-                            st.session_state.statistics = results
+                            results = pipeline_instance.run(max_frames=None, show_progress=False)
+                            # Salvar resultados em variável global temporária
+                            st.session_state._temp_results = results
+                            st.session_state._temp_execution_finished = True
                         except Exception as e:
                             logger.error(f"Erro na execução: {e}")
-                        finally:
-                            st.session_state.is_running = False
+                            st.session_state._temp_error = str(e)
+                            st.session_state._temp_execution_finished = True
+
+                    # Inicializar flags temporárias
+                    st.session_state._temp_execution_finished = False
+                    st.session_state._temp_results = None
+                    st.session_state._temp_error = None
 
                     thread = threading.Thread(target=run_pipeline, daemon=True)
                     thread.start()
@@ -472,7 +537,26 @@ def main():
     """Função principal da aplicação."""
     initialize_session_state()
     render_header()
+
+    # Processar queues de dados vindos das threads
+    process_queues()
+
     render_main_content()
+
+    # Verificar se a execução da thread terminou
+    if hasattr(st.session_state, "_temp_execution_finished") and st.session_state._temp_execution_finished:
+        # Processar resultados da thread
+        if st.session_state._temp_results:
+            st.session_state.statistics = st.session_state._temp_results
+            st.success("✅ Processamento concluído!")
+        elif st.session_state._temp_error:
+            st.error(f"❌ Erro durante processamento: {st.session_state._temp_error}")
+
+        # Limpar flags temporárias
+        st.session_state._temp_execution_finished = False
+        st.session_state._temp_results = None
+        st.session_state._temp_error = None
+        st.session_state.is_running = False
 
     # Auto-refresh para atualizar interface
     if st.session_state.is_running:
