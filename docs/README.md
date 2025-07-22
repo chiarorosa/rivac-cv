@@ -15,9 +15,7 @@ Este diretório contém toda a documentação técnica do projeto RIVAC-CV.
 ### ⚡ UV Package Manager
 
 - **[Guia do UV](uv_guide.md)** - Manual completo do UV Package Manager
-- **[Migração para UV](MIGRATION_TO_UV.md)** - Como migrar projetos de pip para UV
 - **[CI/CD com UV](ci_cd_uv_examples.md)** - Exemplos de integração contínua com UV
-- **[Status da Integração](UV_INTEGRATION_SUCCESS.md)** - Resumo da integração UV
 
 ## 🎯 Navegação Rápida
 
@@ -36,7 +34,6 @@ Este diretório contém toda a documentação técnica do projeto RIVAC-CV.
 ### Para DevOps/CI-CD
 
 1. **Integração contínua**: Consulte [CI/CD com UV](ci_cd_uv_examples.md)
-2. **Performance**: Veja comparações no [Status da Integração](UV_INTEGRATION_SUCCESS.md)
 
 ## 🔗 Links Úteis
 
