@@ -248,9 +248,10 @@ uv run pytest tests/test_detection.py -v
 
 ## 📚 Documentação
 
-- [Arquitetura de Software](docs/Arquitetura%20de%20Software.md) - Detalhes da arquitetura
-- [Guia do UV](docs/UV_GUIDE.md) - Gerenciador de pacotes UV
-- [CI/CD com UV](docs/CI_CD_UV_EXAMPLES.md) - Exemplos para CI/CD
+- [Arquitetura de Software](docs/software_architecture.md) - Detalhes da arquitetura
+- [Guia do UV](docs/uv_guide.md) - Gerenciador de pacotes UV
+- [CI/CD com UV](docs/ci_cd_uv_examples.md) - Exemplos para CI/CD
+- [Interpretação de Detecções](docs/detection_analysis_guide.md) - Como analisar exportações
 
 ## 🤝 Contribuição
 
